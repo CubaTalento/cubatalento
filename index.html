@@ -705,7 +705,8 @@ async function sendMessage() {
       body: JSON.stringify({ system: systemPrompts[modo], messages: conversationHistory })
     });
     const data = await res.json();
-    const reply = data.content?.map(c => c.text || '').join('') || 'Hubo un error, intenta de nuevo.';
+    console.log('Respuesta IA:', JSON.stringify(data));
+    const reply = data.content?.[0]?.text || data.content?.map((c) => c.text || '').join('') || 'Lo siento, intenta de nuevo.';
     hideTyping();
     addMsg('ia', reply);
     conversationHistory.push({ role: 'assistant', content: reply });
