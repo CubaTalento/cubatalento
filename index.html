@@ -697,7 +697,11 @@ async function sendMessage() {
   try {
     const res = await fetch('https://sycaxgszqdfoukntgupp.supabase.co/functions/v1/smooth-processor', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'apikey': SUPABASE_KEY
+      },
       body: JSON.stringify({ system: systemPrompts[modo], messages: conversationHistory })
     });
     const data = await res.json();
