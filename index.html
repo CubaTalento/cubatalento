@@ -357,8 +357,15 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Precio desde (MLC)</label>
-          <input type="number" id="f-precio" placeholder="25">
+          <label>Precio desde</label>
+          <div style="display:flex;gap:0.5rem">
+            <input type="number" id="f-precio" placeholder="25" style="flex:1">
+            <select id="f-moneda" style="width:120px">
+              <option value="USD">USD</option>
+              <option value="CUP">CUP</option>
+              <option value="A convenir">A convenir</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
           <label>Modalidad</label>
@@ -491,7 +498,7 @@ async function cargarFreelancers() {
       <div class="card-desc">${f.descripcion ? f.descripcion.substring(0, 100) + '...' : ''}</div>
       <div class="card-tags">${(f.habilidades || []).slice(0,3).map(h => `<span class="card-tag">${h}</span>`).join('')}</div>
       <div class="card-footer">
-        <span class="precio">Desde $${f.precio_desde || '?'} MLC</span>
+        <span class="precio">${f.moneda === 'A convenir' ? 'A convenir' : `Desde $${f.precio_desde || '?'} ${f.moneda || 'USD'}`}</span>
         <button class="btn-contactar" onclick="abrirModal('${f.nombre}', '${f.rol}')">Contactar →</button>
       </div>
     </div>
@@ -540,7 +547,8 @@ async function registrarFreelancer() {
     habilidades,
     descripcion: document.getElementById('f-descripcion').value.trim(),
     precio_desde: parseFloat(document.getElementById('f-precio').value) || null,
-    modalidad: document.getElementById('f-modalidad').value
+    modalidad: document.getElementById('f-modalidad').value,
+    moneda: document.getElementById('f-moneda').value
   }]);
   btn.disabled = false; btn.textContent = 'Publicar mi perfil gratis →';
   if (error) { showToast('Error al publicar. Intenta de nuevo.', true); return; }
