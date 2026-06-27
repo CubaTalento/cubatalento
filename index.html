@@ -73,6 +73,23 @@
   .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
   .precio { font-weight: 700; font-size: 0.95rem; color: var(--turquesa); }
   .ciudad { font-size: 0.78rem; color: var(--gris); }
+  .btn-contactar { background: var(--turquesa); color: var(--negro); border: none; border-radius: 6px; padding: 0.4rem 1rem; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: transform 0.2s; font-family: 'Inter', sans-serif; }
+  .btn-contactar:hover { transform: scale(1.05); }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal { background: #1a1a1a; border: 1px solid rgba(0,201,167,0.2); border-radius: 16px; padding: 2rem; max-width: 480px; width: 100%; }
+  .modal h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .modal h3 span { color: var(--turquesa); }
+  .modal p { color: var(--gris); font-size: 0.88rem; margin-bottom: 1.5rem; line-height: 1.6; }
+  .modal-btns { display: flex; gap: 0.8rem; flex-direction: column; }
+  .btn-whatsapp { background: #25D366; color: #fff; border: none; border-radius: 10px; padding: 0.9rem; font-weight: 700; font-size: 0.95rem; cursor: pointer; text-decoration: none; display: block; text-align: center; transition: transform 0.2s; }
+  .btn-whatsapp:hover { transform: translateY(-2px); }
+  .btn-email-contact { background: rgba(255,255,255,0.06); color: var(--blanco); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.9rem; font-weight: 600; font-size: 0.95rem; cursor: pointer; text-decoration: none; display: block; text-align: center; transition: all 0.2s; }
+  .btn-email-contact:hover { border-color: var(--turquesa); }
+  .btn-modal-close { background: transparent; border: none; color: var(--gris); font-size: 0.85rem; cursor: pointer; margin-top: 1rem; width: 100%; text-align: center; font-family: 'Inter', sans-serif; }
+  .modal-nota { background: rgba(0,201,167,0.06); border: 1px solid rgba(0,201,167,0.15); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 1.2rem; line-height: 1.5; }
   .empty { text-align: center; padding: 4rem 2rem; color: var(--gris); }
   .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
 
@@ -400,6 +417,20 @@
   </div>
 </div>
 
+<!-- MODAL CONTACTO -->
+<div class="modal-overlay" id="modal-contacto">
+  <div class="modal">
+    <h3>Conectar con <span id="modal-nombre">este profesional</span></h3>
+    <p>Para garantizar una conexión segura y exitosa, todas las solicitudes pasan por nuestro equipo. Te ponemos en contacto en menos de 24 horas.</p>
+    <div class="modal-nota">💡 Nuestro equipo valida el match, negocia condiciones y hace seguimiento para que la conexión sea exitosa.</div>
+    <div class="modal-btns">
+      <a id="btn-wa" href="#" target="_blank" class="btn-whatsapp">💬 Contactar por WhatsApp</a>
+      <a id="btn-em" href="#" class="btn-email-contact">✉️ Contactar por Email</a>
+    </div>
+    <button class="btn-modal-close" onclick="cerrarModal()">Cancelar</button>
+  </div>
+</div>
+
 <footer>
   <p>© 2026 <strong>CubaTalento</strong> · El marketplace del talento cubano · Hecho en Cuba 🇨🇺</p>
 </footer>
@@ -461,7 +492,7 @@ async function cargarFreelancers() {
       <div class="card-tags">${(f.habilidades || []).slice(0,3).map(h => `<span class="card-tag">${h}</span>`).join('')}</div>
       <div class="card-footer">
         <span class="precio">Desde $${f.precio_desde || '?'} MLC</span>
-        <span class="ciudad">📍 ${f.ciudad || 'Cuba'}</span>
+        <button class="btn-contactar" onclick="abrirModal('${f.nombre}', '${f.rol}')">Contactar →</button>
       </div>
     </div>
   `).join('');
@@ -487,7 +518,7 @@ async function cargarEmpleos() {
       <div class="card-tags">${(e.habilidades || []).slice(0,3).map(h => `<span class="card-tag">${h}</span>`).join('')}</div>
       <div class="card-footer">
         <span class="precio">${e.salario || 'A convenir'}</span>
-        <span class="ciudad">📍 ${e.ciudad || 'Cuba'}</span>
+        <button class="btn-contactar" onclick="abrirModal('${e.empresa}', '${e.titulo}')">Aplicar →</button>
       </div>
     </div>
   `).join('');
@@ -679,6 +710,28 @@ async function sendMessage() {
 
 function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+
+// ===== MODAL CONTACTO =====
+const WA_NUMBER = '5352742647';
+const EMAIL = 'cubatalentodan@gmail.com';
+
+function abrirModal(nombre, rol) {
+  document.getElementById('modal-nombre').textContent = nombre;
+  const msg = encodeURIComponent(`Hola! Vi a ${nombre} (${rol}) en CubaTalento y me interesa conectar. ¿Pueden ayudarme?`);
+  const subject = encodeURIComponent(`Solicitud de contacto: ${nombre} — CubaTalento`);
+  const body = encodeURIComponent(`Hola Dana,\n\nVi el perfil de ${nombre} (${rol}) en CubaTalento y me gustaría conectar.\n\nQuedo en espera.\nGracias.`);
+  document.getElementById('btn-wa').href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+  document.getElementById('btn-em').href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
+  document.getElementById('modal-contacto').classList.add('show');
+}
+
+function cerrarModal() {
+  document.getElementById('modal-contacto').classList.remove('show');
+}
+
+document.getElementById('modal-contacto').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModal();
+});
 
 // ===== INIT =====
 cargarFreelancers();
