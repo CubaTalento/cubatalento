@@ -695,15 +695,15 @@ async function sendMessage() {
   document.getElementById('ia-send').disabled = true;
   showTyping();
   try {
-    const res = await fetch('https://sycaxgszqdfoukntgupp.supabase.co/functions/v1/smooth-processor', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'apikey': SUPABASE_KEY
-      },
-      body: JSON.stringify({ system: systemPrompts[modo], messages: conversationHistory })
-    });
+    const res = await fetch('https://cubatalento-ai.danaeaguila0.workers.dev', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    message: text
+  })
+});
     const data = await res.json();
     console.log('Respuesta IA:', JSON.stringify(data));
     const reply = data.content?.[0]?.text || data.content?.map((c) => c.text || '').join('') || 'Lo siento, intenta de nuevo.';
